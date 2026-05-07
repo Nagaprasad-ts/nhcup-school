@@ -14,10 +14,10 @@ use Inertia\Inertia;
 // ── Public Registration ────────────────────────────────────────────────────────
 Route::get('/', fn() => Inertia::render('Home'))->name('home');
 Route::get('/brochure/view', [RegistrationController::class, 'viewBrochure'])->name('brochure.view');
-Route::get('/register',  [RegistrationController::class, 'create'])->name('registration.create');
-Route::post('/register', [RegistrationController::class, 'store'])->name('registration.store');
-Route::get('/register/success', [RegistrationController::class, 'success'])->name('registration.success');
-Route::get('/basketball', [RegistrationController::class, 'basketball'])->name('registration.basketball');
+// Route::get('/register',  [RegistrationController::class, 'create'])->name('registration.create');
+// Route::post('/register', [RegistrationController::class, 'store'])->name('registration.store');
+// Route::get('/register/success', [RegistrationController::class, 'success'])->name('registration.success');
+// Route::get('/basketball', [RegistrationController::class, 'basketball'])->name('registration.basketball');
  
 // ── Razorpay Webhook ───────────────────────────────────────────────────────────
 // This route is excluded from CSRF verification (see App\Http\Middleware\VerifyCsrfToken)

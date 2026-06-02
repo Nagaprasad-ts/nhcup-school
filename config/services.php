@@ -36,9 +36,16 @@ return [
     ],
 
     'razorpay' => [
-        'key_id'         => env('RAZORPAY_KEY'),
-        'key_secret'     => env('RAZORPAY_SECRET'),
+        'key_id' => env('RAZORPAY_KEY'),
+        'key_secret' => env('RAZORPAY_SECRET'),
         'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
+    ],
+
+    'microsoft_graph' => [
+        'tenant_id' => env('AZURE_TENANT_ID'),
+        'client_id' => env('AZURE_CLIENT_ID'),
+        'client_secret' => env('AZURE_CLIENT_SECRET'),
+        'from_address' => env('MAIL_FROM_ADDRESS'),
     ],
 
 ];

@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Database\Seeders\EventSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,14 +15,14 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password')
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@nhcup.in'],
+            ['name' => 'Admin', 'password' => bcrypt('Nhcup@2026')]
+        );
 
         $this->call([
-            EventSeeder::class,
+            SportSeeder::class,
+            SportFeeSeeder::class,
         ]);
     }
 }

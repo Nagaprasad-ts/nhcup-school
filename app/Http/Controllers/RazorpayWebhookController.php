@@ -23,12 +23,12 @@ class RazorpayWebhookController extends Controller
     public function handle(Request $request)
     {
         Log::info('Razorpay webhook hit', [
-            'event'     => $request->json('event'),
+            'event' => $request->json('event'),
             'signature' => $request->header('X-Razorpay-Signature'),
-            'body'      => $request->getContent(),
+            'body' => $request->getContent(),
         ]);
         $webhookSecret = config('services.razorpay.webhook_secret');
-        $webhookBody   = $request->getContent();
+        $webhookBody = $request->getContent();
         $webhookHeader = $request->header('X-Razorpay-Signature');
 
         // ── 1. Verify Signature ──────────────────────────────────────────────
@@ -41,7 +41,7 @@ class RazorpayWebhookController extends Controller
         }
 
         $payload = $request->json()->all();
-        $event   = $payload['event'] ?? null;
+        $event = $payload['event'] ?? null;
 
         Log::info('Razorpay webhook received', ['event' => $event]);
 
@@ -77,14 +77,16 @@ class RazorpayWebhookController extends Controller
 
         if (! $payment) {
             Log::error('Razorpay webhook: missing payment entity in payload');
+
             return;
         }
 
-        $orderId   = $payment['order_id']  ?? null;
-        $paymentId = $payment['id']        ?? null;
+        $orderId = $payment['order_id'] ?? null;
+        $paymentId = $payment['id'] ?? null;
 
         if (! $orderId) {
             Log::error('Razorpay webhook: missing order_id', ['payment_id' => $paymentId]);
+
             return;
         }
 
@@ -92,37 +94,39 @@ class RazorpayWebhookController extends Controller
 
         if (! $registration) {
             Log::warning('Razorpay webhook: registration not found', ['order_id' => $orderId]);
+
             return;
         }
 
         // Idempotency guard — do not re-process already captured payments
         if ($registration->payment_status === 'paid') {
             Log::info('Razorpay webhook: payment already captured, skipping', ['order_id' => $orderId]);
+
             return;
         }
 
         // ── Update registration ──────────────────────────────────────────────
         $registration->update([
             'razorpay_payment_id' => $paymentId,
-            'payment_status'      => 'paid',
+            'payment_status' => 'paid',
         ]);
 
         // ── Send confirmation email ──────────────────────────────────────────
         if (! $registration->email_sent) {
             try {
-                Mail::to($registration->captain_email)
+                Mail::to($registration->coach_email)
                     ->send(new RegistrationConfirmed($registration));
 
                 $registration->update(['email_sent' => true]);
 
                 Log::info('Registration confirmation email sent', [
                     'registration_id' => $registration->id,
-                    'email'           => $registration->captain_email,
+                    'email' => $registration->coach_email,
                 ]);
             } catch (\Exception $e) {
                 Log::error('Failed to send registration confirmation email', [
                     'registration_id' => $registration->id,
-                    'error'           => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }

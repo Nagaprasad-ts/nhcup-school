@@ -11,32 +11,41 @@ return new class extends Migration
         Schema::create('registrations', function (Blueprint $table) {
             $table->id();
 
-            // Institution & PED Details
-            $table->string('institution_name');
-            $table->string('ped_name');                        // Physical Education Director
-            $table->string('ped_contact', 15);
+            // School details
+            $table->string('school_name');
+            $table->string('school_address');
+            $table->string('school_mobile', 15);
+            $table->string('school_email');
 
-            // Captain Details
-            $table->string('captain_name');
-            $table->string('captain_email');
-            $table->string('captain_contact', 15);
+            // Principal details
+            $table->string('principal_name');
+            $table->string('principal_contact', 15);
 
-            // Event
-            $table->string('event');
+            // Coach / in-charge details
+            $table->string('coach_name');
+            $table->string('coach_contact', 15);
+            $table->string('coach_email');
 
-            // Razorpay Payment
+            // Sport
+            $table->string('sport_id');
+            $table->string('sport_name');
+            $table->unsignedBigInteger('sport_fee_id')->nullable();
+            $table->string('fee_label')->nullable();
+
+            // Payment
             $table->string('razorpay_order_id')->unique()->nullable();
             $table->string('razorpay_payment_id')->unique()->nullable();
             $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending');
-            $table->unsignedInteger('amount')->default(0);     // in paise (₹ × 100)
+            $table->unsignedInteger('amount')->default(0);
 
-            // Email notification flag
+            // Internal
             $table->boolean('email_sent')->default(false);
+            $table->text('notes')->nullable();
 
             $table->timestamps();
 
             $table->index('payment_status');
-            $table->index('captain_email');
+            $table->index('coach_email');
         });
     }
 

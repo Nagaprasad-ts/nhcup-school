@@ -1,0 +1,178 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Sport;
+use Illuminate\Database\Seeder;
+
+class SportSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $sports = [
+            // ── Team sports ──────────────────────────────────────────────────
+            [
+                'sport_id' => 'basketball',
+                'name' => 'Basketball',
+                'icon' => '🏀',
+                'badge' => 'NHPS',
+                'teams' => 'U14 / U16 Boys & Girls',
+                'categories' => ['U14', 'U16'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'standard',
+                'max_players' => 12,
+                'pdf_entry' => '/pdf/Basket Ball_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/Basket Ball_NHCUP Rules & Reg.pdf',
+                'sort_order' => 1,
+            ],
+            [
+                'sport_id' => 'football',
+                'name' => 'Football',
+                'icon' => '⚽',
+                'badge' => 'NHG & NHIS',
+                'teams' => 'U10 / U12 / U14 / U16 / U18',
+                'categories' => ['U10', 'U12', 'U14', 'U16', 'U18'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'standard',
+                'max_players' => 18,
+                'pdf_entry' => '/pdf/FootBall_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/FootBall_NHCUP Rules & Reg.pdf',
+                'sort_order' => 2,
+            ],
+            [
+                'sport_id' => 'volleyball',
+                'name' => 'Volleyball',
+                'icon' => '🏐',
+                'badge' => 'NHPS',
+                'teams' => 'U14 / U16 Boys & Girls',
+                'categories' => ['U14', 'U16'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'standard',
+                'max_players' => 12,
+                'pdf_entry' => '/pdf/Volley Ball_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/Volley Ball_NHCUP Rules & Reg.pdf',
+                'sort_order' => 3,
+            ],
+            [
+                'sport_id' => 'badminton',
+                'name' => 'Badminton',
+                'icon' => '🏸',
+                'badge' => 'NHG & NHIS',
+                'teams' => 'U10 / U12 / U14 / U16 / U18',
+                'categories' => ['U10', 'U12', 'U14', 'U16', 'U18'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'standard',
+                'max_players' => 8,
+                'pdf_entry' => '/pdf/Badminton_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/Badminton_NHCUP Rules & Reg..pdf',
+                'sort_order' => 4,
+            ],
+            [
+                'sport_id' => 'throwball',
+                'name' => 'Throwball',
+                'icon' => '🏐',
+                'badge' => 'NHIS',
+                'teams' => 'U12 / U14 / U16 Girls',
+                'categories' => ['U12', 'U14', 'U16'],
+                'genders' => ['Girls'],
+                'player_type' => 'standard',
+                'max_players' => 12,
+                'pdf_entry' => '/pdf/throwBall_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/throwBall_NHCUP Rules & Reg.pdf',
+                'sort_order' => 5,
+            ],
+            // ── Individual sports ─────────────────────────────────────────────
+            [
+                'sport_id' => 'chess',
+                'name' => 'Chess',
+                'icon' => '♟️',
+                'badge' => 'NHPS & NHIS',
+                'teams' => 'U8 / U10 / U12 / U14 / U16',
+                'categories' => ['U8', 'U10', 'U12', 'U14', 'U16'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'rank',
+                'max_players' => 10,
+                'pdf_entry' => '/pdf/Chess_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/chess_NHCUP Rules & Reg.pdf',
+                'sort_order' => 6,
+            ],
+            [
+                'sport_id' => 'tabletennis',
+                'name' => 'Table Tennis',
+                'icon' => '🏓',
+                'badge' => 'NHPS',
+                'teams' => 'U14 / U16 Boys & Girls',
+                'categories' => ['U14', 'U16'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'rank',
+                'max_players' => 8,
+                'pdf_entry' => '/pdf/Table Tennis_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/Table Tennis_NHCUP Rules & Reg.pdf',
+                'sort_order' => 7,
+            ],
+            [
+                'sport_id' => 'pickleball',
+                'name' => 'Pickle Ball',
+                'icon' => '🎾',
+                'badge' => 'NHG',
+                'teams' => 'U14 / U16 Boys & Girls',
+                'categories' => ['U14', 'U16'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'rank',
+                'max_players' => 8,
+                'pdf_entry' => '/pdf/PickeBall_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/Pickle Ball_NHCUP Rules & Reg.pdf',
+                'sort_order' => 8,
+            ],
+            [
+                'sport_id' => 'athletics',
+                'name' => 'Athletics',
+                'icon' => '🏃',
+                'badge' => 'NHIS',
+                'teams' => 'U8 / U10 / U12 / U14 / U16',
+                'categories' => ['U8', 'U10', 'U12', 'U14', 'U16'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'athletics',
+                'max_players' => 20,
+                'pdf_entry' => '/pdf/Athletic Meet_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/Athletic Meet_NHCUP Rules & Reg.pdf',
+                'sort_order' => 9,
+            ],
+            [
+                'sport_id' => 'taekwondo',
+                'name' => 'Taekwondo',
+                'icon' => '🥋',
+                'badge' => 'NHIS',
+                'teams' => 'Grade 3 – 8 Boys & Girls',
+                'categories' => ['Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'taekwondo',
+                'max_players' => 7,
+                'pdf_entry' => '/pdf/Taekwondo_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/Taekwondo_NHCUP Rules & Reg.pdf',
+                'sort_order' => 10,
+            ],
+            [
+                'sport_id' => 'yoga',
+                'name' => 'Yoga',
+                'icon' => '🧘',
+                'badge' => 'NHG',
+                'teams' => 'U10 / U12 / U14 / U16',
+                'categories' => ['U10', 'U12', 'U14', 'U16'],
+                'genders' => ['Boys', 'Girls'],
+                'player_type' => 'standard',
+                'max_players' => 5,
+                'pdf_entry' => '/pdf/Yoga_NHCUP Entry Form.pdf',
+                'pdf_rules' => '/pdf/Yoga_NHCUP Rules & Reg..pdf',
+                'sort_order' => 11,
+            ],
+        ];
+
+        foreach ($sports as $data) {
+            Sport::updateOrCreate(
+                ['sport_id' => $data['sport_id']],
+                $data
+            );
+        }
+    }
+}

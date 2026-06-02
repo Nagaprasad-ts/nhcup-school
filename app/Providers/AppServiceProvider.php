@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Mail\Transport\MicrosoftGraphTransport;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,8 +30,21 @@ class AppServiceProvider extends ServiceProvider
         if (app()->isProduction()) {
             URL::forceScheme('https');
         }
-        
+
         $this->configureDefaults();
+        $this->registerMicrosoftGraphMailer();
+    }
+
+    private function registerMicrosoftGraphMailer(): void
+    {
+        Mail::extend('microsoft-graph', function () {
+            return new MicrosoftGraphTransport(
+                tenantId: config('services.microsoft_graph.tenant_id'),
+                clientId: config('services.microsoft_graph.client_id'),
+                clientSecret: config('services.microsoft_graph.client_secret'),
+                fromAddress: config('services.microsoft_graph.from_address'),
+            );
+        });
     }
 
     /**

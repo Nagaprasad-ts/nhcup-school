@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Registration;
+use App\Models\Sport;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -18,7 +19,7 @@ class RegistrationConfirmed extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Horizon Cup 2026 Registration Confirmed — ' . $this->registration->event->name,
+            subject: 'NHCUP 2026 Registration Confirmed — '.$this->registration->sport_name,
         );
     }
 
@@ -29,6 +30,7 @@ class RegistrationConfirmed extends Mailable
             with: [
                 'registration' => $this->registration,
                 'amountRupees' => $this->registration->amountInRupees(),
+                'sport' => Sport::where('sport_id', $this->registration->sport_id)->first(),
             ],
         );
     }

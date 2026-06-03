@@ -22,7 +22,7 @@ export default function Sports({ sports }: { sports: Sport[] }) {
             <div className="font-rajdhani text-[0.8rem] tracking-[1px] uppercase text-muted">{s.teams}</div>
             {s.is_active
               ? <div className="inline-block mt-2.5 bg-navy/7 border border-navy/20 text-navy font-rajdhani text-[0.7rem] font-bold tracking-[2px] uppercase px-2.5 py-0.5 rounded-full">{s.badge}</div>
-              : <div className="inline-block mt-2.5 bg-nhred/8 border border-nhred/20 text-nhred font-rajdhani text-[0.7rem] font-bold tracking-[2px] uppercase px-2.5 py-0.5 rounded-full">Registrations Full</div>
+              : <div className="inline-block mt-2.5 bg-nhred/8 border border-nhred/20 text-nhred font-rajdhani text-[0.7rem] font-bold tracking-[2px] uppercase px-2.5 py-0.5 rounded-full">Coming Soon</div>
             }
           </Link>
         ))}

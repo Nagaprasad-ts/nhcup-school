@@ -30,4 +30,9 @@ class Sport extends Model
     {
         return $this->hasMany(SportFee::class, 'sport_id', 'sport_id');
     }
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(Registration::class, 'sport_id', 'sport_id');
+    }
 }

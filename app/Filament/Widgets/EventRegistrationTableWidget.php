@@ -2,13 +2,12 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Registration;
+use App\Models\Sport;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class EventRegistrationTableWidget extends BaseWidget
 {
@@ -18,7 +17,7 @@ class EventRegistrationTableWidget extends BaseWidget
 
     public function getTableRecordKey(Model|array $record): string
     {
-        return is_array($record) ? ($record['sport_name'] ?? '') : ($record->sport_name ?? '');
+        return is_array($record) ? ($record['sport_id'] ?? '') : ($record->sport_id ?? '');
     }
 
     public function table(Table $table): Table
@@ -27,33 +26,28 @@ class EventRegistrationTableWidget extends BaseWidget
 
         return $table
             ->query(
-                Registration::query()
-                    ->select([
-                        DB::raw('sport_name'),
-                        DB::raw('COUNT(*) as total_registrations'),
-                        DB::raw("SUM(CASE WHEN payment_status = 'paid' THEN 1 ELSE 0 END) as paid_registrations"),
-                        DB::raw("SUM(CASE WHEN payment_status = 'paid' THEN amount ELSE 0 END) as total_revenue"),
-                        DB::raw('MIN(id) as id'),  // satisfy ONLY_FULL_GROUP_BY
+                Sport::query()
+                    ->withCount([
+                        'registrations as total_registrations',
+                        'registrations as paid_registrations' => fn ($q) => $q->where('payment_status', 'paid'),
                     ])
-                    ->groupBy('sport_name')
-                    ->orderBy('sport_name')
-                    ->reorder('sport_name')  // prevent Filament appending id to ORDER BY
+                    ->withSum(
+                        ['registrations as total_revenue' => fn ($q) => $q->where('payment_status', 'paid')],
+                        'amount'
+                    )
+                    ->orderBy('name')
             )
             ->columns([
-                TextColumn::make('sport_name')
-                    ->label('Sport')
-                    ->sortable(),
+                TextColumn::make('name')
+                    ->label('Sport'),
                 TextColumn::make('paid_registrations')
-                    ->label('Paid')
-                    ->sortable(),
+                    ->label('Paid'),
                 TextColumn::make('total_registrations')
                     ->label('Total')
-                    ->sortable()
                     ->hidden($isPaid),
                 TextColumn::make('total_revenue')
                     ->label('Revenue')
-                    ->formatStateUsing(fn ($state) => '₹'.number_format((float) ($state ?? 0)))
-                    ->sortable(),
+                    ->formatStateUsing(fn ($state) => '₹'.number_format((float) ($state ?? 0))),
             ]);
     }
 }

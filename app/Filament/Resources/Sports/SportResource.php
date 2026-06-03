@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Sports;
 use App\Filament\Resources\Sports\Pages\CreateSport;
 use App\Filament\Resources\Sports\Pages\EditSport;
 use App\Filament\Resources\Sports\Pages\ListSports;
+use App\Filament\Resources\Sports\Pages\ViewSport;
 use App\Filament\Resources\Sports\Schemas\SportForm;
+use App\Filament\Resources\Sports\Schemas\SportInfolist;
 use App\Filament\Resources\Sports\Tables\SportsTable;
 use App\Models\Sport;
 use BackedEnum;
@@ -31,6 +33,11 @@ class SportResource extends Resource
         return SportForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return SportInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return SportsTable::configure($table);
@@ -46,6 +53,7 @@ class SportResource extends Resource
         return [
             'index' => ListSports::route('/'),
             'create' => CreateSport::route('/create'),
+            'view' => ViewSport::route('/{record}'),
             'edit' => EditSport::route('/{record}/edit'),
         ];
     }

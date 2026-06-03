@@ -16,21 +16,25 @@ class RegistrationsExport implements FromQuery, WithHeadings, WithMapping, WithS
     public function query()
     {
         return Registration::query()
-            ->with('event')
-            ->when($this->paidOnly, fn ($q) => $q->where('payment_status', 'paid'));
+            ->when($this->paidOnly, fn ($q) => $q->where('payment_status', 'paid'))
+            ->orderBy('id');
     }
 
     public function headings(): array
     {
         return [
             'ID',
-            'Institution',
-            'Event',
-            'PED Name',
-            'PED Contact',
-            'Captain Name',
-            'Captain Email',
-            'Captain Contact',
+            'School Name',
+            'School Address',
+            'School Mobile',
+            'School Email',
+            'Principal Name',
+            'Principal Contact',
+            'Coach Name',
+            'Coach Contact',
+            'Coach Email',
+            'Sport',
+            'Fee Type',
             'Payment Status',
             'Amount (₹)',
             'Razorpay Order ID',
@@ -43,14 +47,18 @@ class RegistrationsExport implements FromQuery, WithHeadings, WithMapping, WithS
     {
         return [
             $row->id,
-            $row->institution_name,
-            $row->event?->name ?? '-',
-            $row->ped_name,
-            $row->ped_contact,
-            $row->captain_name,
-            $row->captain_email,
-            $row->captain_contact,
-            $row->payment_status,
+            $row->school_name,
+            $row->school_address,
+            $row->school_mobile,
+            $row->school_email,
+            $row->principal_name,
+            $row->principal_contact,
+            $row->coach_name,
+            $row->coach_contact,
+            $row->coach_email,
+            $row->sport_name,
+            $row->fee_label ?? '-',
+            ucfirst($row->payment_status),
             $row->amount,
             $row->razorpay_order_id ?? '-',
             $row->razorpay_payment_id ?? '-',

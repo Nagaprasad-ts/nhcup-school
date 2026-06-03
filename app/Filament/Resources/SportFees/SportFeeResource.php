@@ -5,7 +5,9 @@ namespace App\Filament\Resources\SportFees;
 use App\Filament\Resources\SportFees\Pages\CreateSportFee;
 use App\Filament\Resources\SportFees\Pages\EditSportFee;
 use App\Filament\Resources\SportFees\Pages\ListSportFees;
+use App\Filament\Resources\SportFees\Pages\ViewSportFee;
 use App\Filament\Resources\SportFees\Schemas\SportFeeForm;
+use App\Filament\Resources\SportFees\Schemas\SportFeeInfolist;
 use App\Filament\Resources\SportFees\Tables\SportFeesTable;
 use App\Models\SportFee;
 use BackedEnum;
@@ -33,6 +35,11 @@ class SportFeeResource extends Resource
         return SportFeeForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return SportFeeInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return SportFeesTable::configure($table);
@@ -48,6 +55,7 @@ class SportFeeResource extends Resource
         return [
             'index' => ListSportFees::route('/'),
             'create' => CreateSportFee::route('/create'),
+            'view' => ViewSportFee::route('/{record}'),
             'edit' => EditSportFee::route('/{record}/edit'),
         ];
     }

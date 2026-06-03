@@ -1,1 +1,2 @@
 "# nhcup" 
+"# nhcup-school" 

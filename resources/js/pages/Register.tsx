@@ -736,6 +736,42 @@ export default function Register({
             );
         }
 
+        // Sport is disabled — show registrations full screen
+        if (!sport.is_active) {
+            return (
+                <div className="max-w-[620px] mx-auto">
+                    <SportHeader sport={sport} />
+                    <div className="bg-white rounded-[18px] border border-[rgba(27,48,145,0.12)] shadow-[0_8px_40px_rgba(27,48,145,0.10)] overflow-hidden">
+                        <div className="px-8 py-10 max-md:px-5 text-center flex flex-col items-center gap-5">
+                            <div className="w-16 h-16 rounded-full bg-nhred/10 flex items-center justify-center text-[1.8rem]">
+                                <i className="fas fa-lock text-nhred" />
+                            </div>
+                            <div>
+                                <h3 className="font-orbitron font-black text-[1.3rem] text-dark mb-2">Registrations Full</h3>
+                                <p className="font-inter text-[0.9rem] text-muted leading-[1.7] max-w-[420px]">
+                                    Registrations for <strong className="text-dark">{sport.name}</strong> are currently closed.
+                                    If you have already registered and completed payment, download the entry form below.
+                                </p>
+                            </div>
+                            <div className="flex gap-3 flex-wrap justify-center">
+                                <a href={sport.pdf_entry} target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 font-rajdhani font-bold text-[0.9rem] tracking-[1.5px] uppercase px-6 py-2.5 rounded-full bg-nhred/8 border-[1.5px] border-nhred/30 text-nhred transition-all hover:bg-nhred hover:text-white">
+                                    <i className="fas fa-file-pdf" /> Download Entry Form
+                                </a>
+                                <a href={sport.pdf_rules} target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 font-rajdhani font-bold text-[0.9rem] tracking-[1.5px] uppercase px-6 py-2.5 rounded-full bg-navy/7 border-[1.5px] border-navy/25 text-navy transition-all hover:bg-navy hover:text-white whitespace-nowrap">
+                                    <i className="fas fa-book-open" /> Rules &amp; Regulations
+                                </a>
+                            </div>
+                            <button onClick={handleBack} className="font-rajdhani font-bold text-[0.85rem] tracking-[1.5px] uppercase text-muted hover:text-navy transition-colors flex items-center gap-1.5 mt-2">
+                                <i className="fas fa-arrow-left text-[0.75rem]" /> Choose Another Sport
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         if (!fee) {
             if (feesForSport.length > 1) {
                 return (

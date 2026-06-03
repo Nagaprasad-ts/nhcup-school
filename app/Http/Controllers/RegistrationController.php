@@ -19,7 +19,7 @@ class RegistrationController extends Controller
 
     private function getSports(): Collection
     {
-        return Sport::active()->orderBy('sort_order')->get()->map(fn ($s) => [
+        return Sport::orderBy('sort_order')->get()->map(fn ($s) => [
             'id' => $s->id,
             'sport_id' => $s->sport_id,
             'name' => $s->name,
@@ -32,6 +32,7 @@ class RegistrationController extends Controller
             'max_players' => $s->max_players,
             'pdf_entry' => $s->pdf_entry,
             'pdf_rules' => $s->pdf_rules,
+            'is_active' => $s->is_active,
         ]);
     }
 

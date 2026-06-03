@@ -14,4 +14,5 @@ export interface Sport {
   max_players: number
   pdf_entry  : string
   pdf_rules  : string
+  is_active  : boolean
 }

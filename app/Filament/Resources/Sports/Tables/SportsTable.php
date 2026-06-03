@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Sports\Tables;
 
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -10,6 +11,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class SportsTable
 {
@@ -77,6 +80,28 @@ class SportsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('disable')
+                        ->label('Disable Selected')
+                        ->icon('heroicon-o-eye-slash')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Disable Sports')
+                        ->modalDescription('These sports will be hidden from the website. You can re-enable them anytime.')
+                        ->action(fn (Collection $records) => $records->each->update(['is_active' => false]))
+                        ->visible(fn () => Auth::user()?->hasRole('super_admin'))
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('enable')
+                        ->label('Enable Selected')
+                        ->icon('heroicon-o-eye')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Enable Sports')
+                        ->modalDescription('These sports will be visible on the website again.')
+                        ->action(fn (Collection $records) => $records->each->update(['is_active' => true]))
+                        ->visible(fn () => Auth::user()?->hasRole('super_admin'))
+                        ->deselectRecordsAfterCompletion(),
+
                     DeleteBulkAction::make(),
                 ]),
             ]);

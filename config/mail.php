@@ -37,10 +37,6 @@ return [
 
     'mailers' => [
 
-        'microsoft-graph' => [
-            'transport' => 'microsoft-graph',
-        ],
-
         'smtp' => [
             'transport' => 'smtp',
             'scheme' => env('MAIL_SCHEME'),
@@ -115,8 +111,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'address' => env('MAIL_FROM_ADDRESS'),
+        'name' => env('MAIL_FROM_NAME', env('APP_NAME')),
     ],
 
 ];

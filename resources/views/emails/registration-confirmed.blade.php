@@ -349,6 +349,10 @@
         We look forward to an exciting championship. Best of luck to your team! 🎉
       </p>
 
+      <p class="cta" style="margin-top:16px;">
+        The institution reserves the right to confirm or cancel the registration based on payment inconsistencies.
+      </p>
+
     </div>
 
     {{-- Footer --}}

@@ -72,11 +72,9 @@ class RegistrationInfolist
                             ->boolean(),
                         TextEntry::make('created_at')
                             ->dateTime()
-                            ->timezone('Asia/Kolkata')
                             ->placeholder('-'),
                         TextEntry::make('updated_at')
                             ->dateTime()
-                            ->timezone('Asia/Kolkata')
                             ->placeholder('-'),
                     ]),
             ]);

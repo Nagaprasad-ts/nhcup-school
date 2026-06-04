@@ -112,7 +112,10 @@ class RazorpayWebhookController extends Controller
         ]);
 
         // ── Send confirmation email ──────────────────────────────────────────
-        if (! $registration->email_sent) {
+        // Re-fetch from DB to confirm payment_status is actually paid before sending
+        $registration->refresh();
+
+        if (! $registration->email_sent && $registration->payment_status === 'paid') {
             try {
                 Mail::to($registration->coach_email)
                     ->send(new RegistrationConfirmed($registration));

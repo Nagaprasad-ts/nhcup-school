@@ -44,12 +44,4 @@ class Registration extends Model
     {
         return $query->where('payment_status', 'pending');
     }
-
-    // ─── Helpers ────────────────────────────────────────────────────────────────
-
-    /** Returns the registration fee in rupees (display-friendly). */
-    public function amountInRupees(): float
-    {
-        return $this->amount;
-    }
 }

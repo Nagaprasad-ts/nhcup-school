@@ -90,7 +90,7 @@ class RazorpayWebhookController extends Controller
             return;
         }
 
-        $registration = Registration::where('razorpay_order_id', $orderId)->first();
+        $registration = Registration::firstWhere('razorpay_order_id', $orderId);
 
         if (! $registration) {
             Log::warning('Razorpay webhook: registration not found', ['order_id' => $orderId]);
@@ -141,7 +141,8 @@ class RazorpayWebhookController extends Controller
             return;
         }
 
-        Registration::where('razorpay_order_id', $orderId)
+        Registration::query()
+            ->where('razorpay_order_id', $orderId)
             ->where('payment_status', 'pending')
             ->update(['payment_status' => 'failed']);
 

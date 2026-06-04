@@ -14,7 +14,15 @@ class RegistrationConfirmed extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public readonly Registration $registration) {}
+    public int $amountRupees;
+
+    public ?Sport $sport;
+
+    public function __construct(public readonly Registration $registration)
+    {
+        $this->amountRupees = $registration->amount;
+        $this->sport = Sport::firstWhere('sport_id', $registration->sport_id);
+    }
 
     public function envelope(): Envelope
     {
@@ -27,11 +35,6 @@ class RegistrationConfirmed extends Mailable
     {
         return new Content(
             view: 'emails.registration-confirmed',
-            with: [
-                'registration' => $this->registration,
-                'amountRupees' => $this->registration->amountInRupees(),
-                'sport' => Sport::where('sport_id', $this->registration->sport_id)->first(),
-            ],
         );
     }
 }

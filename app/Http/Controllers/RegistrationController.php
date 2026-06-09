@@ -19,7 +19,7 @@ class RegistrationController extends Controller
 
     private function getSports(): Collection
     {
-        return Sport::orderBy('sort_order')->get()->map(fn ($s) => [
+        return Sport::query()->orderBy('sort_order')->get()->map(fn ($s) => [
             'id' => $s->id,
             'sport_id' => $s->sport_id,
             'name' => $s->name,
@@ -176,7 +176,7 @@ class RegistrationController extends Controller
             return response()->json(['message' => 'Invalid payment signature.'], 400);
         }
 
-        $registration = Registration::where('razorpay_order_id', $validated['razorpay_order_id'])->first();
+        $registration = Registration::firstWhere('razorpay_order_id', $validated['razorpay_order_id']);
 
         if (! $registration) {
             Log::error('Payment verification — registration not found', [

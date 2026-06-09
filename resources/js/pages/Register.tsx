@@ -412,7 +412,7 @@ function RegistrationForm({
             key: order.key_id,
             amount: order.amount,
             currency: order.currency,
-            name: 'NHCUP 2026',
+            name: 'New Horizon Cup 2026',
             description: order.description,
             order_id: order.order_id,
             prefill: {

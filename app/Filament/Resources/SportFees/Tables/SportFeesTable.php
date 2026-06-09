@@ -40,7 +40,7 @@ class SportFeesTable
                 SelectFilter::make('sport_id')
                     ->label('Sport')
                     ->options(
-                        Sport::orderBy('sort_order')->pluck('name', 'sport_id')
+                        Sport::query()->orderBy('sort_order')->pluck('name', 'sport_id')
                     ),
             ])
             ->recordActions([

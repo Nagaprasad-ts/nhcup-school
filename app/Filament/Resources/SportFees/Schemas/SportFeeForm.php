@@ -17,7 +17,7 @@ class SportFeeForm
                     ->label('Sport')
                     ->required()
                     ->options(
-                        Sport::orderBy('sort_order')
+                        Sport::query()->orderBy('sort_order')
                             ->pluck('name', 'sport_id')
                     )
                     ->searchable(),

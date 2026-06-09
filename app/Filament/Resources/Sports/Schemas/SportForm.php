@@ -86,20 +86,10 @@ class SportForm
                                 fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file) => $file->getClientOriginalName()
                             )
                             ->afterStateHydrated(function (FileUpload $component, $state) {
-                                // Clear state — FileUpload cannot display existing path strings
-                                $component->state(null);
+                                // Store only the filename so FileUpload can find it on the pdfs disk
+                                $component->state($state ? basename($state) : null);
                             })
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                if ($state) {
-                                    return '/pdf/'.ltrim($state, '/');
-                                }
-
-                                // No new file uploaded — keep existing DB value
-                                return $record?->pdf_entry;
-                            })
-                            ->helperText(fn ($record) => $record?->pdf_entry
-                                ? 'Current: '.basename($record->pdf_entry).' — Upload to replace'
-                                : 'Upload a PDF file (max 10 MB)'),
+                            ->dehydrateStateUsing(fn ($state) => $state ? '/pdf/'.basename($state) : null),
 
                         FileUpload::make('pdf_rules')
                             ->label('Rules & Regulations PDF')
@@ -111,18 +101,9 @@ class SportForm
                                 fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file) => $file->getClientOriginalName()
                             )
                             ->afterStateHydrated(function (FileUpload $component, $state) {
-                                $component->state(null);
+                                $component->state($state ? basename($state) : null);
                             })
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                if ($state) {
-                                    return '/pdf/'.ltrim($state, '/');
-                                }
-
-                                return $record?->pdf_rules;
-                            })
-                            ->helperText(fn ($record) => $record?->pdf_rules
-                                ? 'Current: '.basename($record->pdf_rules).' — Upload to replace'
-                                : 'Upload a PDF file (max 10 MB)'),
+                            ->dehydrateStateUsing(fn ($state) => $state ? '/pdf/'.basename($state) : null),
 
                         TextInput::make('sort_order')
                             ->required()

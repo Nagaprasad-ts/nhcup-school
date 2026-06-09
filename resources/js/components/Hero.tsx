@@ -37,18 +37,18 @@ export default function Hero() {
       style={{ backgroundImage: `url('${bgImage}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
       {/* Overlay */}
-      <div className="absolute inset-0 z-[1] pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(5,10,40,0.88) 0%, rgba(5,10,40,0.65) 45%, rgba(5,10,40,0.10) 100%)' }} />
-      <div className="relative z-[2] w-[70%] max-md:w-full px-[8%] max-md:px-[6%] pt-10 pb-20 flex flex-col items-start max-md:items-center gap-5 max-md:text-center">
+      <div className="absolute inset-0 z-1 pointer-events-none" style={{ background: 'linear-gradient(to right, rgba(5,10,40,0.88) 0%, rgba(5,10,40,0.65) 45%, rgba(5,10,40,0.10) 100%)' }} />
+      <div className="relative z-2 w-[70%] max-md:w-full px-[8%] max-md:px-[6%] pt-10 pb-20 flex flex-col items-start max-md:items-center gap-5 max-md:text-center">
         {/* Title row */}
         <div className="flex items-center gap-6 max-md:flex-col max-md:items-center">
-          <img src="/images/nhcup_logo.png" alt="NHCUP 2026" className="h-32 max-md:h-[90px] w-auto shrink-0 drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]" />
+          <img src="/images/nhcup_logo.png" alt="NHCUP 2026" className="h-32 max-md:h-22.5 w-auto shrink-0 drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]" />
           <h1 className="font-orbitron text-[46px] max-md:text-[clamp(1.8rem,7vw,2.8rem)] max-[480px]:text-[26px] max-[480px]:leading-10 font-black leading-tight text-white tracking-tight m-0">
             State Level Inter-School<br />
             <span className="bg-linear-to-br from-sky to-gold bg-clip-text text-transparent">Sports Championship</span>
           </h1>
         </div>
         {/* Subtitle */}
-        <p className="text-base max-md:text-[0.95rem] leading-[1.75] text-white/70 max-w-[680px] m-0">
+        <p className="text-base max-md:text-[0.95rem] leading-[1.75] text-white/70 max-w-170 m-0">
           The ultimate battle of pride &amp; sportsmanship. 11 sports disciplines, 50+ schools, 1200+ athletes across Bangalore's finest campuses.
         </p>
         {/* Countdown */}
@@ -56,7 +56,7 @@ export default function Hero() {
           <p className="font-rajdhani text-xl font-bold tracking-[3px] uppercase text-white/90 mb-3">{label}</p>
           <div className="flex gap-2.5 flex-wrap max-md:justify-center max-md:flex-nowrap">
             {[{ val: timeLeft.d, unit: 'Days' }, { val: timeLeft.h, unit: 'Hours' }, { val: timeLeft.m, unit: 'Mins' }, { val: timeLeft.s, unit: 'Secs' }].map(({ val, unit }) => (
-              <div key={unit} className="bg-white/10 border border-white/20 rounded-[10px] p-3.5 w-[100px] max-md:w-[72px] max-[480px]:w-[62px] shrink-0 text-center">
+              <div key={unit} className="bg-white/10 border border-white/20 rounded-[10px] p-3.5 w-25 max-md:w-18 max-[480px]:w-15.5 shrink-0 text-center">
                 <span className="font-orbitron text-[2rem] max-md:text-[1.6rem] max-[480px]:text-[1.3rem] font-bold text-white leading-none block tabular-nums">{val}</span>
                 <span className="font-rajdhani text-[0.65rem] max-[480px]:text-[0.55rem] tracking-[2px] max-[480px]:tracking-[1px] uppercase text-white/50 mt-1.5 block">{unit}</span>
               </div>

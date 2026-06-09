@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Sports\Schemas;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
@@ -73,15 +74,53 @@ class SportForm
                 Section::make('Documents & Settings')
                     ->columns(2)
                     ->schema([
-                        TextInput::make('pdf_entry')
-                            ->label('Entry Form PDF path')
-                            ->required()
-                            ->helperText('e.g. /pdf/Basket Ball_NHCUP Entry Form.pdf'),
+                        FileUpload::make('pdf_entry')
+                            ->label('Entry Form PDF')
+                            ->disk('pdfs')
+                            ->directory('')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->maxSize(10240)
+                            ->getUploadedFileNameForStorageUsing(
+                                fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file) => $file->getClientOriginalName()
+                            )
+                            ->afterStateHydrated(function (FileUpload $component, $state) {
+                                // Clear state — FileUpload cannot display existing path strings
+                                $component->state(null);
+                            })
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($state) {
+                                    return '/pdf/'.ltrim($state, '/');
+                                }
 
-                        TextInput::make('pdf_rules')
-                            ->label('Rules PDF path')
-                            ->required()
-                            ->helperText('e.g. /pdf/Basket Ball_NHCUP Rules & Reg.pdf'),
+                                // No new file uploaded — keep existing DB value
+                                return $record?->pdf_entry;
+                            })
+                            ->helperText(fn ($record) => $record?->pdf_entry
+                                ? 'Current: '.basename($record->pdf_entry).' — Upload to replace'
+                                : 'Upload a PDF file (max 10 MB)'),
+
+                        FileUpload::make('pdf_rules')
+                            ->label('Rules & Regulations PDF')
+                            ->disk('pdfs')
+                            ->directory('')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->maxSize(10240)
+                            ->getUploadedFileNameForStorageUsing(
+                                fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file) => $file->getClientOriginalName()
+                            )
+                            ->afterStateHydrated(function (FileUpload $component, $state) {
+                                $component->state(null);
+                            })
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($state) {
+                                    return '/pdf/'.ltrim($state, '/');
+                                }
+
+                                return $record?->pdf_rules;
+                            })
+                            ->helperText(fn ($record) => $record?->pdf_rules
+                                ? 'Current: '.basename($record->pdf_rules).' — Upload to replace'
+                                : 'Upload a PDF file (max 10 MB)'),
 
                         TextInput::make('sort_order')
                             ->required()

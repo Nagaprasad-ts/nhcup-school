@@ -4,12 +4,12 @@ namespace App\Filament\Resources\Sports\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-
 class SportForm
 {
     public static function configure(Schema $schema): Schema
@@ -18,6 +18,7 @@ class SportForm
             ->components([
                 Section::make('Basic Info')
                     ->columns(2)
+                    ->hidden(fn () => Auth::user()?->hasRole('pdf-manager'))
                     ->schema([
                         TextInput::make('name')
                             ->required()
@@ -46,6 +47,7 @@ class SportForm
 
                 Section::make('Registration Details')
                     ->columns(2)
+                    ->hidden(fn () => Auth::user()?->hasRole('pdf-manager'))
                     ->schema([
                         TagsInput::make('categories')
                             ->required()
@@ -126,10 +128,12 @@ class SportForm
                             ->required()
                             ->numeric()
                             ->default(0)
+                            ->hidden(fn () => Auth::user()?->hasRole('pdf-manager'))
                             ->helperText('Lower number appears first'),
 
                         Toggle::make('is_active')
                             ->label('Active (visible on website)')
+                            ->hidden(fn () => Auth::user()?->hasRole('pdf-manager'))
                             ->default(true)
                             ->inline(false),
                     ]),

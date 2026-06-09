@@ -4,7 +4,6 @@ namespace App\Filament\Widgets;
 
 use App\Models\Registration;
 use Filament\Widgets\ChartWidget;
-
 class EventRevenueChart extends ChartWidget
 {
     protected ?string $heading = 'Sport-wise Revenue';

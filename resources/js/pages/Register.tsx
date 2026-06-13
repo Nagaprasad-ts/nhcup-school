@@ -48,7 +48,7 @@ interface OrderResponse {
 
 // ─── Shared UI atoms ──────────────────────────────────────────────────────────
 const btnPrimary =
-    'inline-flex items-center gap-2.5 bg-gradient-to-br from-gold to-gold-d text-navy-d font-rajdhani font-extrabold text-base tracking-[2px] uppercase px-8 py-3.5 rounded-full shadow-[0_4px_20px_rgba(245,197,24,0.35)] border-0 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_12px_36px_rgba(245,197,24,0.55)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none';
+    'inline-flex items-center gap-2.5 bg-linear-to-br from-gold to-gold-d text-navy-d font-rajdhani font-extrabold text-base tracking-[2px] uppercase px-8 py-3.5 rounded-full shadow-[0_4px_20px_rgba(245,197,24,0.35)] border-0 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_12px_36px_rgba(245,197,24,0.55)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none';
 const inputBase =
     'w-full px-3.5 py-2.5 font-inter text-[0.9rem] border-[1.5px] rounded-[10px] bg-white text-dark outline-none transition-all duration-200 focus:border-navy focus:shadow-[0_0_0_3px_rgba(27,48,145,0.10)] resize-y';
 const inputError =
@@ -187,21 +187,21 @@ function SportSelector({
     return (
         <div>
             <div className="reveal mb-12 text-center">
-                <span className="mb-4 inline-block rounded-full border border-navy/20 bg-navy/7 px-[18px] py-1 font-rajdhani text-[0.8rem] font-bold tracking-[4px] text-navy uppercase">
+                <span className="mb-4 inline-block rounded-full border border-navy/20 bg-navy/7 px-4.5] py-1 font-rajdhani text-[0.8rem] font-bold tracking-[4px] text-navy uppercase">
                     Step 1
                 </span>
                 <h2 className="mb-4 font-orbitron text-[clamp(2rem,5vw,3.2rem)] leading-tight font-black text-dark">
                     Choose Your{' '}
-                    <span className="bg-gradient-to-br from-navy to-sky bg-clip-text text-transparent">
+                    <span className="bg-linear-to-br from-navy to-sky bg-clip-text text-transparent">
                         Sport
                     </span>
                 </h2>
-                <div className="mx-auto mt-4 h-[3px] w-[60px] rounded-sm bg-gradient-to-r from-navy to-sky" />
+                <div className="mx-auto mt-4 h-0.75 w-15 rounded-sm bg-linear-to-r from-navy to-sky" />
                 <p className="mt-4 text-base leading-[1.8] text-muted">
                     Select the sport you want to register your team for.
                 </p>
             </div>
-            <div className="mx-auto grid max-w-[1100px] grid-cols-[repeat(auto-fit,minmax(185px,1fr))] gap-4 max-[480px]:grid-cols-2 max-md:grid-cols-2">
+            <div className="mx-auto grid max-w-275 grid-cols-[repeat(auto-fit,minmax(185px,1fr))] gap-4 max-[480px]:grid-cols-2 max-md:grid-cols-2">
                 {sports.map((s) => (
                     <button
                         key={s.sport_id}
@@ -447,7 +447,7 @@ function RegistrationForm({
     if (step === 'failed') {
         return (
             <StateScreen>
-                <div className="mx-auto mb-4 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-nhred/10 text-[1.8rem] text-nhred">
+                <div className="mx-auto mb-4 flex h-18 w-18 items-center justify-center rounded-full bg-nhred/10 text-[1.8rem] text-nhred">
                     <i className="fas fa-times" />
                 </div>
                 <h2 className="mb-2 font-orbitron text-[1.4rem] font-bold text-dark">
@@ -464,15 +464,14 @@ function RegistrationForm({
     }
 
     return (
-        <div className="mx-auto max-w-[860px]">
+        <div className="mx-auto max-w-215">
             <RegTopbar sport={sport} />
             <SportHeader
                 sport={sport}
                 subtitle={
                     <>
                         {sport.categories.join(' / ')} ·{' '}
-                        {sport.genders.join(' & ')} · Max {sport.max_players}{' '}
-                        players ·{' '}
+                        {sport.genders.join(' & ')} · players ·{' '}
                         <strong className="text-navy">
                             {fee.label} — ₹{fee.amount}
                         </strong>
@@ -739,7 +738,7 @@ export default function Register({
         // Sport is disabled — show registrations full screen
         if (!sport.is_active) {
             return (
-                <div className="max-w-[620px] mx-auto">
+                <div className="max-w-155 mx-auto">
                     <SportHeader sport={sport} />
                     <div className="bg-white rounded-[18px] border border-[rgba(27,48,145,0.12)] shadow-[0_8px_40px_rgba(27,48,145,0.10)] overflow-hidden">
                         <div className="px-8 py-10 max-md:px-5 text-center flex flex-col items-center gap-5">
@@ -748,7 +747,7 @@ export default function Register({
                             </div>
                             <div>
                                 <h3 className="font-orbitron font-black text-[1.3rem] text-dark mb-2">Registrations Full</h3>
-                                <p className="font-inter text-[0.9rem] text-muted leading-[1.7] max-w-[420px]">
+                                <p className="font-inter text-[0.9rem] text-muted leading-[1.7] max-w-105">
                                     Registrations for <strong className="text-dark">{sport.name}</strong> are currently closed.
                                     If you have already registered and completed payment, download the entry form below.
                                 </p>
@@ -797,7 +796,7 @@ export default function Register({
         <>
             <Head title={sport ? `${sport.name} Registration — NHCUP 2026` : 'Register — NHCUP 2026'} />
             <RegisterLayout>
-                <div className="mx-auto w-full max-w-[1200px] px-[5%] py-[60px] max-md:px-[4%] max-md:py-10">
+                <div className="mx-auto w-full max-w-300 px-[5%] py-15 max-md:px-[4%] max-md:py-10">
                     {renderContent()}
                 </div>
             </RegisterLayout>

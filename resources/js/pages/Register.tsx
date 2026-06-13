@@ -471,7 +471,7 @@ function RegistrationForm({
                 subtitle={
                     <>
                         {sport.categories.join(' / ')} ·{' '}
-                        {sport.genders.join(' & ')} · players ·{' '}
+                        {sport.genders.join(' & ')}
                         <strong className="text-navy">
                             {fee.label} — ₹{fee.amount}
                         </strong>

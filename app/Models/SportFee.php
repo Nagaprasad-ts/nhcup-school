@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SportFee extends Model
 {
-    protected $fillable = ['sport_id', 'label', 'amount'];
+    protected $fillable = ['sport_id', 'label', 'amount', 'quantity_enabled', 'max_quantity'];
 
-    protected $casts = ['amount' => 'integer'];
+    protected $casts = ['amount' => 'integer', 'quantity_enabled' => 'boolean',
+        'max_quantity' => 'integer', ];
 
     public function sport(): BelongsTo
     {

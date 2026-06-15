@@ -44,6 +44,8 @@ class RegistrationController extends Controller
                 'id' => $f->id,
                 'label' => $f->label,
                 'amount' => $f->amount,
+                'quantity_enabled' => (bool) $f->quantity_enabled,
+                'max_quantity' => $f->max_quantity,
             ])->values());
     }
 
@@ -84,9 +86,25 @@ class RegistrationController extends Controller
             'sport_id' => ['required', 'string', 'max:50'],
             'sport_name' => ['required', 'string', 'max:100'],
             'sport_fee_id' => ['required', 'integer', 'exists:sport_fees,id'],
+            'quantity' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
 
         $sportFee = SportFee::findOrFail($validated['sport_fee_id']);
+
+        // ── Resolve quantity ──────────────────────────────────────────────────
+        // Default to 1 if the sport fee doesn't have quantity enabled.
+        $quantity = $sportFee->quantity_enabled
+            ? ($validated['quantity'] ?? 1)
+            : 1;
+
+        // Validate against this fee tier's own max_quantity (e.g. Solo→10, Duo→8, Team→4)
+        if ($sportFee->max_quantity !== null && $quantity > $sportFee->max_quantity) {
+            return response()->json([
+                'message' => "Maximum {$sportFee->max_quantity} allowed per registration for '{$sportFee->label}'.",
+            ], 422);
+        }
+
+        $totalAmount = $sportFee->amount * $quantity;
 
         try {
             $api = new Api(
@@ -94,7 +112,7 @@ class RegistrationController extends Controller
                 config('services.razorpay.key_secret')
             );
 
-            $amountInPaise = $sportFee->amount * 100;
+            $amountInPaise = $totalAmount * 100;
 
             $order = $api->order->create([
                 'amount' => $amountInPaise,
@@ -111,10 +129,11 @@ class RegistrationController extends Controller
 
             $registration = Registration::create([
                 ...$validated,
+                'quantity' => $quantity,
                 'fee_label' => $sportFee->label,
                 'razorpay_order_id' => $order['id'],
                 'payment_status' => 'pending',
-                'amount' => $sportFee->amount,
+                'amount' => $totalAmount,
             ]);
 
             Log::info('🛒 Razorpay order created', [
@@ -122,7 +141,7 @@ class RegistrationController extends Controller
                 'school' => $validated['school_name'],
                 'sport' => $validated['sport_name'],
                 'fee_label' => $sportFee->label,
-                'amount' => '₹'.$sportFee->amount,
+                'amount' => '₹'.$totalAmount,
                 'order_id' => $order['id'],
             ]);
 
@@ -248,6 +267,7 @@ class RegistrationController extends Controller
                 'school_mobile' => $registration->school_mobile,
                 'sport_name' => $registration->sport_name,
                 'fee_label' => $registration->fee_label,
+                'quantity' => $registration->quantity,
                 'amount' => $registration->amount,
                 'coach_name' => $registration->coach_name,
                 'coach_email' => $registration->coach_email,

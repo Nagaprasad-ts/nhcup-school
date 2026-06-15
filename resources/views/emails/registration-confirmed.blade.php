@@ -313,6 +313,10 @@
             <span class="val">{{ $registration->fee_label }}</span>
           </div>
           <div class="row">
+            <span class="lbl">Quantity: </span>
+            <span class="val">{{ $registration->quantity }}</span>
+          </div>
+          <div class="row">
             <span class="lbl">Amount Paid: </span>
             <span class="val">₹{{ number_format($amountRupees) }}</span>
           </div>

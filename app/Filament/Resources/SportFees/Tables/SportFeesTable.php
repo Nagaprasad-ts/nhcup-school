@@ -7,6 +7,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -28,6 +29,16 @@ class SportFeesTable
 
                 TextColumn::make('amount')
                     ->money('INR')
+                    ->sortable(),
+
+                IconColumn::make('quantity_enabled')
+                    ->label('Quantity?')
+                    ->boolean()
+                    ->sortable(),
+
+                TextColumn::make('max_quantity')
+                    ->label('Max Limit')
+                    ->placeholder('-')
                     ->sortable(),
 
                 TextColumn::make('updated_at')

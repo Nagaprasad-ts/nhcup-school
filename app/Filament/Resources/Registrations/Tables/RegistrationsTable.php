@@ -26,6 +26,9 @@ class RegistrationsTable
                 TextColumn::make('sport_name')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('quantity')
+                    ->numeric()
+                    ->sortable(),
                 TextColumn::make('school_email')
                     ->label('School Email')
                     ->searchable()

@@ -18,6 +18,7 @@ class Registration extends Model
         'coach_email',
         'sport_id',
         'sport_name',
+        'quantity',
         'sport_fee_id',
         'fee_label',
         'razorpay_order_id',
@@ -31,6 +32,7 @@ class Registration extends Model
     protected $casts = [
         'email_sent' => 'boolean',
         'amount' => 'integer',
+        'quantity' => 'integer',
     ];
 
     // ─── Scopes ────────────────────────────────────────────────────────────────

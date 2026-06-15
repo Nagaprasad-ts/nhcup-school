@@ -50,11 +50,12 @@ class RegistrationInfolist
                     ]),
 
                 Section::make('Sport')
-                    ->columns(2)
+                    ->columns(3)
                     ->schema([
                         TextEntry::make('sport_name'),
                         TextEntry::make('sport_id')
                             ->label('Sport ID'),
+                        TextEntry::make('quantity'),
                     ]),
 
                 Section::make('Payment Details')

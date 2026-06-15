@@ -61,7 +61,7 @@ class RegistrationForm
                     ]),
 
                 Section::make('Sport')
-                    ->columns(2)
+                    ->columns(3)
                     ->schema([
                         TextInput::make('sport_name')
                             ->required()
@@ -70,6 +70,11 @@ class RegistrationForm
                             ->label('Sport ID')
                             ->required()
                             ->maxLength(50),
+                        TextInput::make('quantity')
+                            ->required()
+                            ->numeric()
+                            ->default(1)
+                            ->minValue(1),
                     ]),
 
                 Section::make('Payment Details')

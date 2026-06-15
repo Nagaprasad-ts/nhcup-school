@@ -25,6 +25,8 @@ interface FeeOption {
     id: number;
     label: string;
     amount: number;
+    quantity_enabled: boolean;
+    max_quantity: number | null;
 }
 interface Props {
     sports?: Sport[];
@@ -187,7 +189,7 @@ function SportSelector({
     return (
         <div>
             <div className="reveal mb-12 text-center">
-                <span className="mb-4 inline-block rounded-full border border-navy/20 bg-navy/7 px-4.5] py-1 font-rajdhani text-[0.8rem] font-bold tracking-[4px] text-navy uppercase">
+                <span className="px-4.5] mb-4 inline-block rounded-full border border-navy/20 bg-navy/7 py-1 font-rajdhani text-[0.8rem] font-bold tracking-[4px] text-navy uppercase">
                     Step 1
                 </span>
                 <h2 className="mb-4 font-orbitron text-[clamp(2rem,5vw,3.2rem)] leading-tight font-black text-dark">
@@ -253,8 +255,16 @@ function FeeSelector({
                             onClick={() => onSelect(fee)}
                             className="group flex w-full cursor-pointer items-center gap-4 rounded-[14px] border-2 border-[rgba(27,48,145,0.10)] bg-page2 px-6 py-4 text-left transition-all duration-300 hover:translate-x-1 hover:border-navy hover:bg-navy/4 hover:shadow-[0_8px_30px_rgba(27,48,145,0.25)]"
                         >
-                            <div className="flex-1 font-rajdhani text-[1.1rem] font-bold tracking-[0.5px] text-dark">
-                                {fee.label}
+                            <div className="flex-1">
+                                <div className="font-rajdhani text-[1.1rem] font-bold tracking-[0.5px] text-dark">
+                                    {fee.label}
+                                </div>
+                                {fee.quantity_enabled && fee.max_quantity && (
+                                    <div className="mt-0.5 font-rajdhani text-[0.8rem] font-medium text-muted">
+                                        Max Limit: {fee.max_quantity}{' '}
+                                        registrations
+                                    </div>
+                                )}
                             </div>
                             <div className="rounded-full bg-navy/8 px-4 py-1.5 font-orbitron text-[1.2rem] font-black text-navy">
                                 ₹{fee.amount}
@@ -289,6 +299,7 @@ function RegistrationForm({
         coach_contact: '',
         declaration: false,
     });
+    const [quantity, setQuantity] = useState(1);
     const [errors, setErrors] = useState<FormErrors>({});
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState<'form' | 'failed'>('form');
@@ -384,12 +395,13 @@ function RegistrationForm({
                 sport_id: sport.sport_id,
                 sport_name: sport.name,
                 sport_fee_id: fee.id,
+                quantity: quantity,
             });
 
             if ('status' in data) {
                 // free sport — shouldn't happen anymore but handle gracefully
                 setLoading(false);
-                
+
                 return;
             }
 
@@ -432,7 +444,7 @@ function RegistrationForm({
                 } catch {
                     // Verification failed — webhook will retry
                 }
-                
+
                 // Redirect to thank-you page
                 window.location.href = `/thank-you/${order.registration_id}`;
             },
@@ -621,6 +633,68 @@ function RegistrationForm({
                     </RegField>
                 </FormSection>
 
+                {/* Quantity */}
+                {fee.quantity_enabled && (
+                    <div className="border-b border-[rgba(27,48,145,0.08)] px-8 py-7 max-md:px-5 max-md:py-5">
+                        <div className="mb-4 flex items-center gap-2 font-rajdhani text-[0.78rem] font-bold tracking-[3px] text-navy uppercase">
+                            <i className="fas fa-list-ol text-[0.9rem]" />{' '}
+                            Quantity Selection
+                        </div>
+                        <div className="flex max-w-[320px] flex-col gap-2">
+                            <label className="block font-rajdhani text-[0.88rem] font-bold tracking-[0.5px] text-dark">
+                                Number of Registrations / Participants
+                                <span className="ml-1 text-nhred">*</span>
+                            </label>
+                            <div className="mt-1.5 flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setQuantity((p) => Math.max(1, p - 1))
+                                    }
+                                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-[rgba(27,48,145,0.2)] bg-page2 text-[1.1rem] font-bold text-navy transition-all hover:bg-navy/5 active:scale-95"
+                                >
+                                    -
+                                </button>
+                                <input
+                                    type="number"
+                                    min={1}
+                                    max={fee.max_quantity || 100}
+                                    value={quantity}
+                                    onChange={(e) => {
+                                        const val =
+                                            parseInt(e.target.value) || 1;
+                                        const maxVal = fee.max_quantity || 100;
+                                        setQuantity(
+                                            Math.min(maxVal, Math.max(1, val)),
+                                        );
+                                    }}
+                                    className="w-20 rounded-lg border-[1.5px] border-[rgba(27,48,145,0.2)] px-2 py-2 text-center font-orbitron text-[1rem] font-bold text-dark outline-none focus:border-navy focus:shadow-[0_0_0_3px_rgba(27,48,145,0.10)]"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setQuantity((p) =>
+                                            Math.min(
+                                                fee.max_quantity || 100,
+                                                p + 1,
+                                            ),
+                                        )
+                                    }
+                                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-[rgba(27,48,145,0.2)] bg-page2 text-[1.1rem] font-bold text-navy transition-all hover:bg-navy/5 active:scale-95"
+                                >
+                                    +
+                                </button>
+                            </div>
+                            {fee.max_quantity && (
+                                <p className="mt-1 text-[0.78rem] text-muted">
+                                    Maximum <strong>{fee.max_quantity}</strong>{' '}
+                                    registrations allowed for this type.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* Declaration */}
                 <div className="border-b border-[rgba(27,48,145,0.08)] px-8 py-7 max-md:px-5 max-md:py-5">
                     <label
@@ -651,10 +725,11 @@ function RegistrationForm({
                 {/* Fee row */}
                 <div className="flex items-center justify-between border-b border-[rgba(27,48,145,0.08)] bg-navy/3 px-8 py-5 max-md:px-5">
                     <span className="flex items-center gap-2 font-rajdhani text-[0.95rem] font-bold tracking-[1px] text-navy uppercase">
-                        <i className="fas fa-receipt" /> {fee.label}
+                        <i className="fas fa-receipt" /> {fee.label}{' '}
+                        {quantity > 1 && `(x${quantity})`}
                     </span>
                     <strong className="font-orbitron text-[1.3rem] font-black text-navy-d">
-                        ₹{fee.amount}
+                        ₹{(fee.amount * quantity).toLocaleString()}
                     </strong>
                 </div>
 
@@ -673,7 +748,8 @@ function RegistrationForm({
                         ) : (
                             <>
                                 <i className="fas fa-credit-card" /> Pay ₹
-                                {fee.amount} &amp; Register
+                                {(fee.amount * quantity).toLocaleString()} &amp;
+                                Register
                             </>
                         )}
                     </button>
@@ -738,32 +814,53 @@ export default function Register({
         // Sport is disabled — show registrations full screen
         if (!sport.is_active) {
             return (
-                <div className="max-w-155 mx-auto">
+                <div className="mx-auto max-w-155">
                     <SportHeader sport={sport} />
-                    <div className="bg-white rounded-[18px] border border-[rgba(27,48,145,0.12)] shadow-[0_8px_40px_rgba(27,48,145,0.10)] overflow-hidden">
-                        <div className="px-8 py-10 max-md:px-5 text-center flex flex-col items-center gap-5">
-                            <div className="w-16 h-16 rounded-full bg-nhred/10 flex items-center justify-center text-[1.8rem]">
+                    <div className="overflow-hidden rounded-[18px] border border-[rgba(27,48,145,0.12)] bg-white shadow-[0_8px_40px_rgba(27,48,145,0.10)]">
+                        <div className="flex flex-col items-center gap-5 px-8 py-10 text-center max-md:px-5">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-nhred/10 text-[1.8rem]">
                                 <i className="fas fa-lock text-nhred" />
                             </div>
                             <div>
-                                <h3 className="font-orbitron font-black text-[1.3rem] text-dark mb-2">Registrations Full</h3>
-                                <p className="font-inter text-[0.9rem] text-muted leading-[1.7] max-w-105">
-                                    Registrations for <strong className="text-dark">{sport.name}</strong> are currently closed.
-                                    If you have already registered and completed payment, download the entry form below.
+                                <h3 className="mb-2 font-orbitron text-[1.3rem] font-black text-dark">
+                                    Registrations Full
+                                </h3>
+                                <p className="max-w-105 font-inter text-[0.9rem] leading-[1.7] text-muted">
+                                    Registrations for{' '}
+                                    <strong className="text-dark">
+                                        {sport.name}
+                                    </strong>{' '}
+                                    are currently closed. If you have already
+                                    registered and completed payment, download
+                                    the entry form below.
                                 </p>
                             </div>
-                            <div className="flex gap-3 flex-wrap justify-center">
-                                <a href={sport.pdf_entry} target="_blank" rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 font-rajdhani font-bold text-[0.9rem] tracking-[1.5px] uppercase px-6 py-2.5 rounded-full bg-nhred/8 border-[1.5px] border-nhred/30 text-nhred transition-all hover:bg-nhred hover:text-white">
-                                    <i className="fas fa-file-pdf" /> Download Entry Form
+                            <div className="flex flex-wrap justify-center gap-3">
+                                <a
+                                    href={sport.pdf_entry}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-nhred/30 bg-nhred/8 px-6 py-2.5 font-rajdhani text-[0.9rem] font-bold tracking-[1.5px] text-nhred uppercase transition-all hover:bg-nhred hover:text-white"
+                                >
+                                    <i className="fas fa-file-pdf" /> Download
+                                    Entry Form
                                 </a>
-                                <a href={sport.pdf_rules} target="_blank" rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 font-rajdhani font-bold text-[0.9rem] tracking-[1.5px] uppercase px-6 py-2.5 rounded-full bg-navy/7 border-[1.5px] border-navy/25 text-navy transition-all hover:bg-navy hover:text-white whitespace-nowrap">
-                                    <i className="fas fa-book-open" /> Rules &amp; Regulations
+                                <a
+                                    href={sport.pdf_rules}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-navy/25 bg-navy/7 px-6 py-2.5 font-rajdhani text-[0.9rem] font-bold tracking-[1.5px] whitespace-nowrap text-navy uppercase transition-all hover:bg-navy hover:text-white"
+                                >
+                                    <i className="fas fa-book-open" /> Rules
+                                    &amp; Regulations
                                 </a>
                             </div>
-                            <button onClick={handleBack} className="font-rajdhani font-bold text-[0.85rem] tracking-[1.5px] uppercase text-muted hover:text-navy transition-colors flex items-center gap-1.5 mt-2">
-                                <i className="fas fa-arrow-left text-[0.75rem]" /> Choose Another Sport
+                            <button
+                                onClick={handleBack}
+                                className="mt-2 flex items-center gap-1.5 font-rajdhani text-[0.85rem] font-bold tracking-[1.5px] text-muted uppercase transition-colors hover:text-navy"
+                            >
+                                <i className="fas fa-arrow-left text-[0.75rem]" />{' '}
+                                Choose Another Sport
                             </button>
                         </div>
                     </div>
@@ -794,7 +891,13 @@ export default function Register({
 
     return (
         <>
-            <Head title={sport ? `${sport.name} Registration — NHCUP 2026` : 'Register — NHCUP 2026'} />
+            <Head
+                title={
+                    sport
+                        ? `${sport.name} Registration — NHCUP 2026`
+                        : 'Register — NHCUP 2026'
+                }
+            />
             <RegisterLayout>
                 <div className="mx-auto w-full max-w-300 px-[5%] py-15 max-md:px-[4%] max-md:py-10">
                     {renderContent()}

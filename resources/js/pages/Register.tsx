@@ -534,7 +534,7 @@ function RegistrationForm({
                     <RegField label="School Name" required error={errors.school_name}>
                         <input
                             type="text"
-                            placeholder="e.g. St. Joseph's High School"
+                            placeholder="e.g. New Horizon Public School"
                             value={form.school_name}
                             onChange={set('school_name')}
                             className={`${inputBase} ${errors.school_name ? inputError : inputOk}`}

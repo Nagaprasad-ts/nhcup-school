@@ -21,13 +21,15 @@ interface FormData {
 interface FormErrors {
     [k: string]: string;
 }
+
 interface FeeOption {
     id: number;
     label: string;
     amount: number;
-    quantity_enabled: boolean;
-    max_quantity: number | null;
+    quantity_enabled: boolean;   // ← NEW
+    max_quantity: number | null; // ← NEW (null = no limit)
 }
+
 interface Props {
     sports?: Sport[];
     sportId?: string;
@@ -189,7 +191,7 @@ function SportSelector({
     return (
         <div>
             <div className="reveal mb-12 text-center">
-                <span className="px-4.5] mb-4 inline-block rounded-full border border-navy/20 bg-navy/7 py-1 font-rajdhani text-[0.8rem] font-bold tracking-[4px] text-navy uppercase">
+                <span className="mb-4 inline-block rounded-full border border-navy/20 bg-navy/7 px-4.5] py-1 font-rajdhani text-[0.8rem] font-bold tracking-[4px] text-navy uppercase">
                     Step 1
                 </span>
                 <h2 className="mb-4 font-orbitron text-[clamp(2rem,5vw,3.2rem)] leading-tight font-black text-dark">
@@ -255,16 +257,8 @@ function FeeSelector({
                             onClick={() => onSelect(fee)}
                             className="group flex w-full cursor-pointer items-center gap-4 rounded-[14px] border-2 border-[rgba(27,48,145,0.10)] bg-page2 px-6 py-4 text-left transition-all duration-300 hover:translate-x-1 hover:border-navy hover:bg-navy/4 hover:shadow-[0_8px_30px_rgba(27,48,145,0.25)]"
                         >
-                            <div className="flex-1">
-                                <div className="font-rajdhani text-[1.1rem] font-bold tracking-[0.5px] text-dark">
-                                    {fee.label}
-                                </div>
-                                {fee.quantity_enabled && fee.max_quantity && (
-                                    <div className="mt-0.5 font-rajdhani text-[0.8rem] font-medium text-muted">
-                                        Max Limit: {fee.max_quantity}{' '}
-                                        registrations
-                                    </div>
-                                )}
+                            <div className="flex-1 font-rajdhani text-[1.1rem] font-bold tracking-[0.5px] text-dark">
+                                {fee.label}
                             </div>
                             <div className="rounded-full bg-navy/8 px-4 py-1.5 font-orbitron text-[1.2rem] font-black text-navy">
                                 ₹{fee.amount}
@@ -299,10 +293,47 @@ function RegistrationForm({
         coach_contact: '',
         declaration: false,
     });
-    const [quantity, setQuantity] = useState(1);
     const [errors, setErrors] = useState<FormErrors>({});
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState<'form' | 'failed'>('form');
+
+    // ── Quantity state (only used when fee.quantity_enabled) ─────────────────
+    const [quantity, setQuantity] = useState(1);
+    const max = fee.max_quantity ?? 100;
+    const totalAmount = fee.amount * (fee.quantity_enabled ? quantity : 1);
+
+    const participantLabel = (() => {
+        const l = fee.label.toLowerCase();
+        
+        if (l.includes('team')) {
+            return 'Number of Teams';
+        }
+        
+        if (l.includes('pair') || l.includes('duo')) {
+            return 'Number of Pairs';
+        }
+        
+        return 'Number of Participants';
+    })();
+
+    const unitLabel = (() => {
+        const l = fee.label.toLowerCase();
+        
+        if (l.includes('team')) {
+            return quantity > 1 ? 'teams' : 'team';
+        }
+        
+        if (l.includes('pair') || l.includes('duo')) {
+            return quantity > 1 ? 'pairs' : 'pair';
+        }
+        
+        return quantity > 1 ? 'participants' : 'participant';
+    })();
+
+    // Reset quantity when fee changes (e.g. user navigates back and picks another)
+    useEffect(() => {
+        setQuantity(1);
+    }, [fee.id]);
 
     useEffect(() => {
         if (!document.getElementById('razorpay-script')) {
@@ -331,45 +362,50 @@ function RegistrationForm({
         if (!form.school_name.trim()) {
             e.school_name = 'School name is required.';
         }
-
+        
         if (!form.school_address.trim()) {
             e.school_address = 'School address is required.';
         }
-
+        
         if (!form.school_mobile.trim()) {
             e.school_mobile = 'School mobile is required.';
         }
-
+        
         if (!form.school_email.trim()) {
             e.school_email = 'School email is required.';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.school_email)) {
             e.school_email = 'Enter a valid email.';
         }
-
+        
         if (!form.coach_email.trim()) {
             e.coach_email = 'Coach email is required.';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.coach_email)) {
             e.coach_email = 'Enter a valid email.';
         }
-
+        
         if (!form.principal_name.trim()) {
             e.principal_name = "Principal's name is required.";
-        }
 
+        }
+        
         if (!form.principal_contact.trim()) {
             e.principal_contact = "Principal's contact is required.";
-        }
 
-        if (!form.coach_name.trim()) {
+        }
+        
+        if (!form.coach_name.trim()) { 
             e.coach_name = 'Coach name is required.';
-        }
 
+        }
+        
         if (!form.coach_contact.trim()) {
             e.coach_contact = 'Coach contact is required.';
-        }
 
+        }
+        
         if (!form.declaration) {
             e.declaration = 'You must accept the declaration.';
+
         }
 
         return e;
@@ -381,27 +417,25 @@ function RegistrationForm({
 
         if (Object.keys(errs).length) {
             setErrors(errs);
-
+            
             return;
         }
 
         setLoading(true);
 
         try {
-            const { data } = await axios.post<
-                OrderResponse | { status: string }
-            >('/register', {
+            const { data } = await axios.post<OrderResponse | { status: string }>('/register', {
                 ...form,
                 sport_id: sport.sport_id,
                 sport_name: sport.name,
                 sport_fee_id: fee.id,
-                quantity: quantity,
+                // Only send quantity when this fee tier has quantity enabled
+                ...(fee.quantity_enabled ? { quantity } : {}),
             });
 
             if ('status' in data) {
-                // free sport — shouldn't happen anymore but handle gracefully
                 setLoading(false);
-
+                
                 return;
             }
 
@@ -445,7 +479,6 @@ function RegistrationForm({
                     // Verification failed — webhook will retry
                 }
 
-                // Redirect to thank-you page
                 window.location.href = `/thank-you/${order.registration_id}`;
             },
         });
@@ -483,9 +516,10 @@ function RegistrationForm({
                 subtitle={
                     <>
                         {sport.categories.join(' / ')} ·{' '}
-                        {sport.genders.join(' & ')} .
+                        {sport.genders.join(' & ')} ·{' '}
                         <strong className="text-navy">
                             {fee.label} — ₹{fee.amount}
+                            {fee.quantity_enabled && quantity > 1 && ` × ${quantity}`}
                         </strong>
                     </>
                 }
@@ -497,11 +531,7 @@ function RegistrationForm({
             >
                 {/* School */}
                 <FormSection icon="fa-school" title="School Information">
-                    <RegField
-                        label="School Name"
-                        required
-                        error={errors.school_name}
-                    >
+                    <RegField label="School Name" required error={errors.school_name}>
                         <input
                             type="text"
                             placeholder="e.g. St. Joseph's High School"
@@ -510,11 +540,7 @@ function RegistrationForm({
                             className={`${inputBase} ${errors.school_name ? inputError : inputOk}`}
                         />
                     </RegField>
-                    <RegField
-                        label="School Mobile"
-                        required
-                        error={errors.school_mobile}
-                    >
+                    <RegField label="School Mobile" required error={errors.school_mobile}>
                         <input
                             type="tel"
                             placeholder="98765 43210"
@@ -523,11 +549,7 @@ function RegistrationForm({
                             className={`${inputBase} ${errors.school_mobile ? inputError : inputOk}`}
                         />
                     </RegField>
-                    <RegField
-                        label="School Email"
-                        required
-                        error={errors.school_email}
-                    >
+                    <RegField label="School Email" required error={errors.school_email}>
                         <input
                             type="email"
                             placeholder="school@example.edu"
@@ -536,12 +558,7 @@ function RegistrationForm({
                             className={`${inputBase} ${errors.school_email ? inputError : inputOk}`}
                         />
                     </RegField>
-                    <RegField
-                        label="School Address"
-                        required
-                        error={errors.school_address}
-                        colSpan
-                    >
+                    <RegField label="School Address" required error={errors.school_address} colSpan>
                         <textarea
                             rows={2}
                             placeholder="Full school address"
@@ -554,11 +571,7 @@ function RegistrationForm({
 
                 {/* Principal */}
                 <FormSection icon="fa-user-tie" title="Principal Details">
-                    <RegField
-                        label="Principal Name"
-                        required
-                        error={errors.principal_name}
-                    >
+                    <RegField label="Principal Name" required error={errors.principal_name}>
                         <input
                             type="text"
                             placeholder="Full name"
@@ -567,11 +580,7 @@ function RegistrationForm({
                             className={`${inputBase} ${errors.principal_name ? inputError : inputOk}`}
                         />
                     </RegField>
-                    <RegField
-                        label="Principal Contact"
-                        required
-                        error={errors.principal_contact}
-                    >
+                    <RegField label="Principal Contact" required error={errors.principal_contact}>
                         <input
                             type="tel"
                             placeholder="98765 43210"
@@ -583,15 +592,8 @@ function RegistrationForm({
                 </FormSection>
 
                 {/* Coach */}
-                <FormSection
-                    icon="fa-whistle"
-                    title="Coach / In-charge Details"
-                >
-                    <RegField
-                        label="Coach Name"
-                        required
-                        error={errors.coach_name}
-                    >
+                <FormSection icon="fa-whistle" title="Coach / In-charge Details">
+                    <RegField label="Coach Name" required error={errors.coach_name}>
                         <input
                             type="text"
                             placeholder="Full name"
@@ -600,11 +602,7 @@ function RegistrationForm({
                             className={`${inputBase} ${errors.coach_name ? inputError : inputOk}`}
                         />
                     </RegField>
-                    <RegField
-                        label="Coach Contact"
-                        required
-                        error={errors.coach_contact}
-                    >
+                    <RegField label="Coach Contact" required error={errors.coach_contact}>
                         <input
                             type="tel"
                             placeholder="98765 43210"
@@ -613,12 +611,7 @@ function RegistrationForm({
                             className={`${inputBase} ${errors.coach_contact ? inputError : inputOk}`}
                         />
                     </RegField>
-                    <RegField
-                        label="Coach Email"
-                        required
-                        error={errors.coach_email}
-                        colSpan
-                    >
+                    <RegField label="Coach Email" required error={errors.coach_email} colSpan>
                         <input
                             type="email"
                             placeholder="coach@school.edu"
@@ -627,71 +620,80 @@ function RegistrationForm({
                             className={`${inputBase} ${errors.coach_email ? inputError : inputOk}`}
                         />
                         <p className="mt-1.5 text-[0.75rem] text-muted">
-                            Confirmation email will be sent here after
-                            registration.
+                            Confirmation email will be sent here after registration.
                         </p>
                     </RegField>
                 </FormSection>
 
-                {/* Quantity */}
+                {/* ── Quantity selector — only shown when fee has quantity_enabled ── */}
                 {fee.quantity_enabled && (
                     <div className="border-b border-[rgba(27,48,145,0.08)] px-8 py-7 max-md:px-5 max-md:py-5">
-                        <div className="mb-4 flex items-center gap-2 font-rajdhani text-[0.78rem] font-bold tracking-[3px] text-navy uppercase">
-                            <i className="fas fa-list-ol text-[0.9rem]" />{' '}
-                            Quantity Selection
-                        </div>
-                        <div className="flex max-w-[320px] flex-col gap-2">
-                            <label className="block font-rajdhani text-[0.88rem] font-bold tracking-[0.5px] text-dark">
-                                Number of Registrations / Participants
-                                <span className="ml-1 text-nhred">*</span>
-                            </label>
-                            <div className="mt-1.5 flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setQuantity((p) => Math.max(1, p - 1))
-                                    }
-                                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-[rgba(27,48,145,0.2)] bg-page2 text-[1.1rem] font-bold text-navy transition-all hover:bg-navy/5 active:scale-95"
-                                >
-                                    -
-                                </button>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    max={fee.max_quantity || 100}
-                                    value={quantity}
-                                    onChange={(e) => {
-                                        const val =
-                                            parseInt(e.target.value) || 1;
-                                        const maxVal = fee.max_quantity || 100;
-                                        setQuantity(
-                                            Math.min(maxVal, Math.max(1, val)),
-                                        );
-                                    }}
-                                    className="w-20 rounded-lg border-[1.5px] border-[rgba(27,48,145,0.2)] px-2 py-2 text-center font-orbitron text-[1rem] font-bold text-dark outline-none focus:border-navy focus:shadow-[0_0_0_3px_rgba(27,48,145,0.10)]"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setQuantity((p) =>
-                                            Math.min(
-                                                fee.max_quantity || 100,
-                                                p + 1,
-                                            ),
-                                        )
-                                    }
-                                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-[rgba(27,48,145,0.2)] bg-page2 text-[1.1rem] font-bold text-navy transition-all hover:bg-navy/5 active:scale-95"
-                                >
-                                    +
-                                </button>
+                        <div className="mb-5 flex items-center justify-between">
+                            <div className="flex items-center gap-2 font-rajdhani text-[0.78rem] font-bold tracking-[3px] text-navy uppercase">
+                                <i className="fas fa-users text-[0.9rem]" /> {participantLabel}
                             </div>
-                            {fee.max_quantity && (
-                                <p className="mt-1 text-[0.78rem] text-muted">
-                                    Maximum <strong>{fee.max_quantity}</strong>{' '}
-                                    registrations allowed for this type.
-                                </p>
-                            )}
+                            {/* {fee.max_quantity && (
+                                <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-0.5 font-rajdhani text-[0.72rem] font-bold tracking-[1px] text-amber-700 uppercase">
+                                    Max {fee.max_quantity} per school
+                                </span>
+                            )} */}
                         </div>
+
+                        <div className="flex items-center gap-4">
+                            {/* Decrement */}
+                            <button
+                                type="button"
+                                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                                disabled={quantity <= 1}
+                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-navy text-[1.3rem] font-bold text-navy transition-all hover:bg-navy hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                            >
+                                −
+                            </button>
+
+                            {/* Input */}
+                            <input
+                                type="number"
+                                min={1}
+                                max={max}
+                                value={quantity}
+                                onChange={(e) => {
+                                    const v = parseInt(e.target.value, 10);
+                                    
+                                    if (!isNaN(v)) {
+                                        setQuantity(Math.min(Math.max(1, v), max));
+                                    }
+                                }}
+                                className="w-16 rounded-[10px] border-2 border-navy/30 py-2 text-center font-orbitron text-[1.1rem] font-bold text-navy outline-none focus:border-navy [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            />
+
+                            {/* Increment */}
+                            <button
+                                type="button"
+                                onClick={() => setQuantity((q) => Math.min(max, q + 1))}
+                                disabled={quantity >= max}
+                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-navy text-[1.3rem] font-bold text-navy transition-all hover:bg-navy hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                            >
+                                +
+                            </button>
+
+                            {/* Live total */}
+                            <div className="ml-1 flex flex-col">
+                                <span className="font-rajdhani text-[0.7rem] font-bold tracking-[1px] text-muted uppercase">
+                                    Total
+                                </span>
+                                <span className="font-orbitron text-[1.2rem] font-black text-navy">
+                                    ₹{totalAmount.toLocaleString('en-IN')}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Helper line */}
+                        <p className="mt-3 font-inter text-[0.78rem] text-muted">
+                            ₹{fee.amount.toLocaleString('en-IN')} x {quantity} {unitLabel}
+                            {quantity > 1 && (
+                                <> = <strong className="text-navy">₹{totalAmount.toLocaleString('en-IN')}</strong></>
+                            )}
+                        </p>
                     </div>
                 )}
 
@@ -722,14 +724,19 @@ function RegistrationForm({
                     )}
                 </div>
 
-                {/* Fee row */}
+                {/* Fee row — shows total when quantity_enabled */}
                 <div className="flex items-center justify-between border-b border-[rgba(27,48,145,0.08)] bg-navy/3 px-8 py-5 max-md:px-5">
                     <span className="flex items-center gap-2 font-rajdhani text-[0.95rem] font-bold tracking-[1px] text-navy uppercase">
-                        <i className="fas fa-receipt" /> {fee.label}{' '}
-                        {quantity > 1 && `(x${quantity})`}
+                        <i className="fas fa-receipt" />{' '}
+                        {fee.label}
+                        {fee.quantity_enabled && quantity > 1 && (
+                            <span className="font-normal text-muted normal-case tracking-normal">
+                                {' '}× {quantity}
+                            </span>
+                        )}
                     </span>
                     <strong className="font-orbitron text-[1.3rem] font-black text-navy-d">
-                        ₹{(fee.amount * quantity).toLocaleString()}
+                        ₹{totalAmount.toLocaleString('en-IN')}
                     </strong>
                 </div>
 
@@ -748,8 +755,7 @@ function RegistrationForm({
                         ) : (
                             <>
                                 <i className="fas fa-credit-card" /> Pay ₹
-                                {(fee.amount * quantity).toLocaleString()} &amp;
-                                Register
+                                {totalAmount.toLocaleString('en-IN')} &amp; Register
                             </>
                         )}
                     </button>
@@ -814,53 +820,32 @@ export default function Register({
         // Sport is disabled — show registrations full screen
         if (!sport.is_active) {
             return (
-                <div className="mx-auto max-w-155">
+                <div className="max-w-155 mx-auto">
                     <SportHeader sport={sport} />
-                    <div className="overflow-hidden rounded-[18px] border border-[rgba(27,48,145,0.12)] bg-white shadow-[0_8px_40px_rgba(27,48,145,0.10)]">
-                        <div className="flex flex-col items-center gap-5 px-8 py-10 text-center max-md:px-5">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-nhred/10 text-[1.8rem]">
+                    <div className="bg-white rounded-[18px] border border-[rgba(27,48,145,0.12)] shadow-[0_8px_40px_rgba(27,48,145,0.10)] overflow-hidden">
+                        <div className="px-8 py-10 max-md:px-5 text-center flex flex-col items-center gap-5">
+                            <div className="w-16 h-16 rounded-full bg-nhred/10 flex items-center justify-center text-[1.8rem]">
                                 <i className="fas fa-lock text-nhred" />
                             </div>
                             <div>
-                                <h3 className="mb-2 font-orbitron text-[1.3rem] font-black text-dark">
-                                    Registrations Full
-                                </h3>
-                                <p className="max-w-105 font-inter text-[0.9rem] leading-[1.7] text-muted">
-                                    Registrations for{' '}
-                                    <strong className="text-dark">
-                                        {sport.name}
-                                    </strong>{' '}
-                                    are currently closed. If you have already
-                                    registered and completed payment, download
-                                    the entry form below.
+                                <h3 className="font-orbitron font-black text-[1.3rem] text-dark mb-2">Registrations Full</h3>
+                                <p className="font-inter text-[0.9rem] text-muted leading-[1.7] max-w-105">
+                                    Registrations for <strong className="text-dark">{sport.name}</strong> are currently closed.
+                                    If you have already registered and completed payment, download the entry form below.
                                 </p>
                             </div>
-                            <div className="flex flex-wrap justify-center gap-3">
-                                <a
-                                    href={sport.pdf_entry}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-nhred/30 bg-nhred/8 px-6 py-2.5 font-rajdhani text-[0.9rem] font-bold tracking-[1.5px] text-nhred uppercase transition-all hover:bg-nhred hover:text-white"
-                                >
-                                    <i className="fas fa-file-pdf" /> Download
-                                    Entry Form
+                            <div className="flex gap-3 flex-wrap justify-center">
+                                <a href={sport.pdf_entry} target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 font-rajdhani font-bold text-[0.9rem] tracking-[1.5px] uppercase px-6 py-2.5 rounded-full bg-nhred/8 border-[1.5px] border-nhred/30 text-nhred transition-all hover:bg-nhred hover:text-white">
+                                    <i className="fas fa-file-pdf" /> Download Entry Form
                                 </a>
-                                <a
-                                    href={sport.pdf_rules}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-navy/25 bg-navy/7 px-6 py-2.5 font-rajdhani text-[0.9rem] font-bold tracking-[1.5px] whitespace-nowrap text-navy uppercase transition-all hover:bg-navy hover:text-white"
-                                >
-                                    <i className="fas fa-book-open" /> Rules
-                                    &amp; Regulations
+                                <a href={sport.pdf_rules} target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 font-rajdhani font-bold text-[0.9rem] tracking-[1.5px] uppercase px-6 py-2.5 rounded-full bg-navy/7 border-[1.5px] border-navy/25 text-navy transition-all hover:bg-navy hover:text-white whitespace-nowrap">
+                                    <i className="fas fa-book-open" /> Rules &amp; Regulations
                                 </a>
                             </div>
-                            <button
-                                onClick={handleBack}
-                                className="mt-2 flex items-center gap-1.5 font-rajdhani text-[0.85rem] font-bold tracking-[1.5px] text-muted uppercase transition-colors hover:text-navy"
-                            >
-                                <i className="fas fa-arrow-left text-[0.75rem]" />{' '}
-                                Choose Another Sport
+                            <button onClick={handleBack} className="font-rajdhani font-bold text-[0.85rem] tracking-[1.5px] uppercase text-muted hover:text-navy transition-colors flex items-center gap-1.5 mt-2">
+                                <i className="fas fa-arrow-left text-[0.75rem]" /> Choose Another Sport
                             </button>
                         </div>
                     </div>
@@ -891,13 +876,7 @@ export default function Register({
 
     return (
         <>
-            <Head
-                title={
-                    sport
-                        ? `${sport.name} Registration — NHCUP 2026`
-                        : 'Register — NHCUP 2026'
-                }
-            />
+            <Head title={sport ? `${sport.name} Registration — NHCUP 2026` : 'Register — NHCUP 2026'} />
             <RegisterLayout>
                 <div className="mx-auto w-full max-w-300 px-[5%] py-15 max-md:px-[4%] max-md:py-10">
                     {renderContent()}

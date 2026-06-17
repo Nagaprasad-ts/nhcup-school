@@ -13,24 +13,36 @@ class RegistrationStatsWidget extends BaseWidget
     {
         $isPaid = Auth::user()?->hasRole('core-team');
 
-        $all = Registration::all();
-        $paid = $all->where('payment_status', 'paid');
+        $all     = Registration::all();
+        $paid    = $all->where('payment_status', 'paid');
         $pending = $all->where('payment_status', '!=', 'paid');
 
+        // Participant counts = sum of quantity (defaults to 1 for non-quantity sports)
+        $totalParticipants = $all->sum('quantity');
+        $paidParticipants  = $paid->sum('quantity');
+        $totalRevenue      = $paid->sum('amount');
+
         $stats = [
-            Stat::make('Total Registrations', $isPaid ? $paid->count() : $all->count())
-                ->icon('heroicon-o-users')
-                ->description('All registrations')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
+            Stat::make(
+                'Total Registrations',
+                $isPaid ? $paid->count() : $all->count()
+            )
+                ->icon('heroicon-o-clipboard-document-list')
+                ->description(
+                    $isPaid
+                        ? "{$paidParticipants} participants"
+                        : "{$totalParticipants} participants across all sports"
+                )
+                ->descriptionIcon('heroicon-m-user-group')
                 ->color('info'),
 
             Stat::make('Paid Registrations', $paid->count())
                 ->icon('heroicon-o-check-circle')
-                ->description('Completed payments')
+                ->description("{$paidParticipants} participants confirmed")
                 ->descriptionIcon('heroicon-m-check')
                 ->color('success'),
 
-            Stat::make('Total Revenue', '₹'.number_format($paid->sum('amount')))
+            Stat::make('Total Revenue', '₹' . number_format($totalRevenue))
                 ->icon('heroicon-o-currency-rupee')
                 ->description('From paid registrations')
                 ->descriptionIcon('heroicon-m-banknotes')
@@ -40,7 +52,7 @@ class RegistrationStatsWidget extends BaseWidget
         if (! $isPaid) {
             $stats[] = Stat::make('Pending Registrations', $pending->count())
                 ->icon('heroicon-o-clock')
-                ->description('Awaiting payment')
+                ->description($pending->sum('quantity') . ' participants awaiting payment')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('danger');
         }

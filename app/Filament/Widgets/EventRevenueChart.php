@@ -4,17 +4,39 @@ namespace App\Filament\Widgets;
 
 use App\Models\Registration;
 use Filament\Widgets\ChartWidget;
+
 class EventRevenueChart extends ChartWidget
 {
-    protected ?string $heading = 'Sport-wise Revenue';
+    protected ?string $heading = 'Sport-wise Revenue & Participants';
 
     protected static ?int $sort = 2;
 
+    protected int | string | array $columnSpan = 'full';
+
+    protected ?string $maxHeight = '300px';
+
+    // Allow toggling between revenue and participant view
+    public ?string $filter = 'revenue';
+
+    protected function getFilters(): ?array
+    {
+        return [
+            'revenue'      => 'Revenue (₹)',
+            'participants' => 'Participants',
+        ];
+    }
+
     protected function getData(): array
     {
+        $byRevenue = $this->filter === 'revenue';
+
         $data = Registration::query()
             ->where('payment_status', 'paid')
-            ->selectRaw('sport_name, SUM(amount) as total')
+            ->selectRaw(
+                $byRevenue
+                    ? 'sport_name, SUM(amount) as total'
+                    : 'sport_name, SUM(quantity) as total'
+            )
             ->groupBy('sport_name')
             ->orderByDesc('total')
             ->get();
@@ -30,10 +52,10 @@ class EventRevenueChart extends ChartWidget
 
         return [
             'datasets' => [[
-                'label' => 'Revenue (₹)',
-                'data' => $data->pluck('total')->toArray(),
+                'label'           => $byRevenue ? 'Revenue (₹)' : 'Participants',
+                'data'            => $data->pluck('total')->toArray(),
                 'backgroundColor' => array_slice($colors, 0, $data->count()),
-                'borderWidth' => 1,
+                'borderWidth'     => 1,
             ]],
             'labels' => $data->pluck('sport_name')->toArray(),
         ];
